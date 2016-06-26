@@ -1,0 +1,247 @@
+<openerp>
+    <data>
+		<record id="view_rep_sales_tree" model="ir.ui.view">
+			<field name="name">cli.rep.sales.tree</field>
+			<field name="model">cli.rep.sales</field>
+			<field name="arch" type="xml">
+				<tree string="Laporan Bulanan">
+					<field name="name"/>
+					<field name="tgl_awal"/>
+					<field name="tgl_akhir"/>
+					<field name="category"/>
+					<field name="isppn"/>
+				</tree>
+			</field>
+		</record>
+		<record id="view_sales_rep" model="ir.ui.view">
+			<field name="name">Sales_rep</field>
+			<field name="model">cli.rep.sales</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="Report Sales">
+					<sheet>
+						<header>
+							<button string="Isi Data" type="object" name="generate_data" class="oe_highlight"/>
+						</header>
+						<group>
+							<group>
+								<field name="name"/>
+								<field name="tgl_awal"/>
+								<field name="tgl_akhir"/>
+								<field name="category"/>
+								<field name="isppn"/>
+							</group>
+							<group>
+								<field name="sumHarga_jual"/>
+								<field name="sumPD"/>
+								<field name="sumPD1"/>
+								<field name="sumNetto"/>
+								<field name="sumKomisi"/>
+							</group>
+						</group>
+						<field name="report_line">
+							<tree default_order='no_inv'>
+								<field name="Tanggal"/>
+								<field name="no_inv"/>
+								<field name="sales"/>
+								<field name="customer"/>
+								<field name="Item"/>
+								<field name="Harga"/>
+								<field name="Disc"/>
+								<field name="Harga_jual"/>
+								<field name='ppn'/>
+								<field name="PD"/>
+								<field name="PD1"/>
+								<field name="Netto"/>
+								<field name="Psn_kom"/>
+								<field name="Komisi"/>
+							</tree>
+						</field>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		<record id="action_rep_sales" model="ir.actions.act_window">
+			<field name="name">Data Penjualan</field>
+			<field name="res_model">cli.rep.sales</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		<menuitem name="Report" id="menu_report" parent="base.menu_sales" sequence="20"/>
+		<menuitem name="Laporan Bulanan" id="menu_rep_sales" action="action_rep_sales" parent="menu_report"/>
+		
+		<template id="assets_backend" name="cli_rep_sales css assets" inherit_id="web.assets_backend">
+			<xpath expr="." position="inside">
+				<link ref="stylesheet" href="/cli_rep_sales/static/src/css/mylayout.css"/>
+			</xpath>
+		</template>
+		
+		<template id="laporan_penjualan_document">
+			<t t-foreach="docs" t-as="o">
+				<div class="page">
+					<table class="col-xs-12">
+						<tr>
+							<div class="row">
+								<h3><span t-field="o.name"/></h3>
+							</div>
+						</tr>
+					</table>
+					<table style="width:100%">
+						<thead>
+							<tr>
+								<th style="border: 1px solid;text-align:center">No</th>
+								<th style="border: 1px solid;text-align:center">TANGGAL</th>
+								<th style="border: 1px solid;text-align:center">NO.INV</th>
+								<th style="border: 1px solid;text-align:center">SALES</th>
+								<th style="border: 1px solid;text-align:center">CUSTOMER</th>
+								<th style="border: 1px solid;text-align:center">ITEM</th>
+								<th style="border: 1px solid;text-align:center">HARGA</th>
+								<th style="border: 1px solid;text-align:center">DISC</th>
+								<th style="border: 1px solid;text-align:center">HARGA JUAL</th>
+								<th style="border: 1px solid;text-align:center">PPN</th>
+								<th style="border: 1px solid;text-align:center">PD</th>
+								<th style="border: 1px solid;text-align:center">PD1</th>
+								<th style="border: 1px solid;text-align:center">NETTO</th>
+								<th style="border: 1px solid;text-align:center">%KOM</th>
+								<th style="border: 1px solid;text-align:center">KOMISI</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr t-foreach="o.report_line" t-as="line" style="border: 1px solid">
+								<td style="width:3%;border: 1px solid;text-align:right;padding-right:10px">
+									<span t-esc="line_index+1"/>
+								</td>
+								<td style="width:7%;border: 1px solid;padding-left:10px">
+									<span t-field="line.Tanggal" t-field-options='{"format":"d MMMM y"}'/>
+								</td>
+								<td style="width:3%;border: 1px solid;padding-left:10px">
+									<span t-field="line.no_inv"/>
+								</td>
+								<td class="rata-kiri" style="width:7%;border: 1px solid;padding-left:10px">
+									<span t-field="line.sales"/>
+								</td>
+								<td class="rata-kiri" style="width:15%;border: 1px solid;padding-left:10px">
+									<span t-field="line.customer"/>
+								</td>
+								<td style="width:15%;border: 1px solid;padding-left:10px">
+									<span t-field="line.Item"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Harga)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Disc)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:7.5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Harga_jual)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.ppn)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.PD)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.PD1)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:7.5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Netto)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Psn_kom)).replace(',','.')"/>
+								</td>
+								<td class="rata-kanan" style="width:5%;border: 1px solid;padding-right:10px;text-align:right">
+									<span t-esc="'{:,.0f}'.format(int(line.Komisi)).replace(',','.')"/>
+								</td>
+
+							</tr>
+							<tr>
+								<strong>
+									<td style="width:3%;border-left: 1px solid;border-bottom: 1px solid;text-align:right;padding-right:10px">
+										<span/>
+									</td>
+									<td style="width:7%;border-bottom: 1px solid;padding-left:10px">
+										<span/>
+									</td>
+									<td style="width:3%;border-bottom: 1px solid;padding-left:10px">
+										<span/>
+									</td>
+									<td style="width:7%;border-bottom: 1px solid;padding-left:10px">
+										<span/>
+									</td>
+									<td style="width:15%;border-bottom: 1px solid;padding-left:10px">
+										<span/>
+									</td>
+									<td style="width:15%;border-bottom: 1px solid;padding-left:10px;text-align:center">
+										<strong><span>G r a n d  T o t a l</span></strong>
+									</td>
+									<td style="width:5%;border-bottom: 1px solid;padding-right:10px;text-align:right">
+										<span/>
+									</td>
+									<td style="width:5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px">
+										<span/>
+									</td>
+									<td class="rata-kanan" style="width:7.5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px;text-align:right">
+										<span t-esc="'{:,.0f}'.format(int(o.sumHarga_jual)).replace(',','.')"/>
+									</td>
+									<td class="rata-kanan" style="width:5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px;text-align:right">
+										<span/>
+									</td>
+									<td class="rata-kanan" style="width:5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px;text-align:right">
+										<span t-esc="'{:,.0f}'.format(int(o.sumPD)).replace(',','.')"/>
+									</td>
+									<td class="rata-kanan" style="width:5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px;text-align:right">
+										<span t-esc="'{:,.0f}'.format(int(o.sumPD1)).replace(',','.')"/>
+									</td>
+									<td class="rata-kanan" style="width:7.5%;border-bottom: 1px solid;border-right: 1px solid;padding-right:10px;text-align:right">
+										<span t-esc="'{:,.0f}'.format(int(o.sumNetto)).replace(',','.')"/>
+									</td>
+									<td class="rata-kanan" style="width:5%;border-bottom: 1px solid;border-right:1px solid;padding-right:10px;text-align:right">
+										<span/>
+									</td>
+									<td class="rata-kanan" style="width:5%;border-bottom: 1px solid;border-right:1px solid;padding-right:10px;text-align:right">
+										<span t-esc="'{:,.0f}'.format(int(o.sumKomisi)).replace(',','.')"/>
+									</td>
+								</strong>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</t>
+		</template>
+		
+		<template id="laporan_penjualan">
+			<t t-foreach="doc_ids" t-as="doc-id">
+				<t t-raw="translate_doc(doc_id, doc_model, 'lang', 'cli_rep_sales.laporan_penjualan_document')"/>
+			</t>
+		</template>
+		
+		<report 
+			id = "custom_laporan_penjualan"
+			model = "cli.rep.sales"
+			string = "Print"
+			report_type = "qweb-pdf"
+			name = "cli_rep_sales.laporan_penjualan"
+			attachment_use = "False"
+			file = "Laporan_penjualan"
+		/>
+		
+		<record id="cli_rep_sales_pf" model="report.paperformat">
+			<field name="name">Laporan Penjualan</field>
+			<field name="default" eval="True"/>
+			<field name="format">A3</field>
+			<field name="orientation">Landscape</field>
+			<field name="margin_top">3</field>
+			<field name="margin_bottom">3</field>
+			<field name="Margin_left">3</field>
+			<field name="margin_right">3</field>
+			<field name="header_line" eval="False"/>
+			<field name="header_spacing">3</field>
+			<field name="dpi">80</field>
+		</record>
+		
+		<record id="cli_rep_sales.custom_laporan_penjualan" model="ir.actions.report.xml">
+			<field name="paperformat_id" ref="cli_rep_sales.cli_rep_sales_pf"/>
+		</record>
+    </data>
+</openerp>

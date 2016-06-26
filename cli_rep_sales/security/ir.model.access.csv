@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cli_rep_sales_cli_rep_sales,cli_rep_sales.cli_rep_sales,model_cli_rep_sales_cli_rep_sales,,1,0,0,0
