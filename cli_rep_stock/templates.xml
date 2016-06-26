@@ -1,0 +1,155 @@
+<openerp>
+    <data>
+		<menuitem id="menu_stock_laporan" name="Laporan" parent="stock.menu_stock_root" sequence="2"/>
+		<menuitem id="menu_stock_laporan_bulanan" name="Bulanan" action="action_rep_stock" parent="menu_stock_laporan"/>
+		
+		<record id="view_rep_stock_tree" model="ir.ui.view">
+			<field name="name">rep.stock.tree</field>
+			<field name="model">cli_rep_stock.rep_stock</field>
+			<field name="arch" type="xml">
+				<tree string="Laporan stock">
+					<field name="name"/>
+					<field name="tglawal"/>
+					<field name="tglakhir"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="view_rep_stock_form" model="ir.ui.view">
+			<field name="name">rep.stock.form</field>
+			<field name="model">cli_rep_stock.rep_stock</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="Laporan stock">
+					<header>
+						<button name="isi_data" string="Isi Data" type="object" />
+					</header>
+					<sheet>
+						<h1>
+							<Label string="Laporan Stock Bulanan"/>
+						</h1>
+						<group>
+							<field name="name"/>
+							<field name="tglawal"/>
+							<field name="tglakhir"/>
+							<field name="category"/>
+							<field name="isnol"/>
+							<field name="location_id"/>
+						</group>
+						<field name="report_line">
+							<tree string="detail laporan">
+								<field name="product_name"/>
+								<field name="product_uom"/>
+								<field name="stock_awal"/>
+								<field name="mutasi_in"/>
+								<field name="mutasi_out"/>
+								<field name="stock_akhir"/>
+							</tree>
+						</field>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="action_rep_stock" model="ir.actions.act_window">
+			<field name="name">Laporan Stock Bulanan</field>
+			<field name="res_model">cli_rep_stock.rep_stock</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<template id="laporan_stock_document">
+			<t t-foreach="docs" t-as="o">
+				<div class="page">
+					<table class="col-xs-12">
+						<tr>
+							<div class="row">
+								<h3><span t-field="o.name"/></h3>
+								<strong>
+									<table>
+										<tr>
+											<td class="col-xs-6">Periode :<span t-field="o.tglawal"/> s/d <span t-field="o.tglakhir"/></td>
+											<td class="col-xs-6">Category :<span t-if="o.category == '4'">Chemical</span><span t-if="o.category == '3'">Lubricant</span></td>
+										</tr>
+									</table>
+								</strong>
+							</div>
+						</tr>
+					</table>
+					<table class="col-xs-12">
+						<thead>
+							<tr>
+								<th style="border: 1px solid;text-align:center">No</th>
+								<th style="border: 1px solid;text-align:center">Produk</th>
+								<th style="border: 1px solid;text-align:center">Satuan</th>
+								<th style="border: 1px solid;text-align:center">Stock Akhir</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr t-foreach="o.report_line" t-as="line" style="border: 1px solid">
+								<td class="col-xs-1" style="border: 1px solid;text-align:right">
+									<span t-esc="line_index+1"/>
+								</td>
+								<td class="col-xs-6" style="border: 1px solid;padding-left:10px">
+									<span t-field="line.product_name"/>
+								</td>
+								<td class="col-xs-2" style="border: 1px solid;padding-left:10px">
+									<span t-field="line.product_uom"/>
+								</td>
+								<td class="col-xs-2;" style="border: 1px solid;text-align:right;padding-right:10px">
+									<span t-esc="'{:,.0f}'.format(line.stock_akhir)"/>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</t>
+		</template>
+		
+		<template id="laporan_stock">
+			<t t-foreach="doc_ids" t-as="doc-id">
+				<t t-raw="translate_doc(doc_id, doc_model, 'lang', 'cli_rep_stock.laporan_stock_document')"/>
+			</t>
+		</template>
+		
+		<report 
+			id = "custom_laporan_stock"
+			model = "cli_rep_stock.rep_stock"
+			string = "Print"
+			report_type = "qweb-pdf"
+			name = "cli_rep_stock.laporan_stock"
+			attachment_use = "False"
+			file = "Laporan_stock"
+		/>
+		
+		<record id="cli_rep_stock_pf" model="report.paperformat">
+			<field name="name">Laporan Stock</field>
+			<field name="default" eval="True"/>
+			<field name="format">A4</field>
+			<field name="orientation">Portrait</field>
+			<field name="margin_top">10</field>
+			<field name="margin_bottom">10</field>
+			<field name="Margin_left">10</field>
+			<field name="margin_right">10</field>
+			<field name="header_line" eval="False"/>
+			<field name="header_spacing">3</field>
+			<field name="dpi">80</field>
+		</record>
+		
+		<record id="cli_rep_stock.custom_laporan_stock" model="ir.actions.report.xml">
+			<field name="paperformat_id" ref="cli_rep_stock.cli_rep_stock_pf"/>
+		</record>
+
+		<record id="view_inventory_form" model="ir.ui.view">
+			<field name="name">stock.inventory.form</field>
+			<field name="model">stock.inventory</field>
+			<field name="inherit_id" ref="stock.view_inventory_form"/>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<xpath expr="//form/sheet/group/group[2]/field[@name='package_id']" position="after">
+					<field name="initial_inv"/>
+				</xpath>
+			</field>
+		</record>
+    </data>
+</openerp>
